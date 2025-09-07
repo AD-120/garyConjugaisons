@@ -1,0 +1,39 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Georgia', serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+/* Optional: Add some responsive design for mobile */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+}
+
+/* Loading indicator styles */
+.loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    z-index: 1000;
+}
+
+/* Hide canvas until loaded */
+canvas.loading {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+canvas.loaded {
+    opacity: 1;
+}
