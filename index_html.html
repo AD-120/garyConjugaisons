@@ -1,13 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>French Verb Conjugation Trainer</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Jeu de Conjugaison</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 </head>
 <body>
-    <script src="script.js"></script>
+<script>
+let verbs = {
+  "ÊTRE": ["je suis","tu es","il/elle est","nous sommes","vous êtes","ils/elles sont"],
+  "AVOIR": ["j’ai","tu as","il/elle a","nous avons","vous avez","ils/elles ont"],
+  "PARLER": ["je parle","tu parles","il/elle parle","nous parlons","vous parlez","ils/elles parlent"],
+  "ALLER": ["je vais","tu vas","il/elle va","nous allons","vous allez","ils/elles vont"]
+  // אפשר להוסיף את כל השאר כאן...
+};
+
+let pronouns = ["je","tu","il/elle","nous","vous","ils/elles"];
+let selectedVerbs = [];
+let state = "menu";
+let questions = [];
+let current = 0;
+let score = 0;
+let input, button;
+let showHelp = false;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+  background(250);
+
+  if (state === "menu") {
+    textSize(24);
+    text("בחר פעלים לתרגול:", 50, 50);
+
+    let y = 100;
+    for (let v in verbs) {
+      let checked = selectedVerbs.includes(v) ? "[x]" : "[ ]";
+      text(checked + " " + v, 70, y);
+      y += 40;
+    }
+
+    text("לחץ על פועל כדי לבחור/להסיר. לחץ ENTER כדי להתחיל.", 50, y + 30);
+  }
+
+  else if (state === "game") {
+    let q = questions[current];
+    textSize(28);
+    textAlign(LEFT, TOP);
+    text(q.verb, 50, 50);
+    text(q.pronoun + " ______", 50, 100);
+
+    if (showHelp) {
+      drawHelpTable(q.verb);
+    }
+  }
+
+  else if (state === "end") {
+    textSize(32);
+    text("הסשן הסתיים!", 50, 100);
+    text("הניקוד שלך: " + score + " / " + questions.length, 50, 150);
+    text("לחץ ENTER כדי להתחיל מחדש", 50, 200);
+  }
+}
+
+function mousePressed() {
+  if (state === "menu") {
+    let y = 100;
+    for (let v in verbs) {
+      if (mouseY > y-20 && mouseY < y+10) {
+        if (selectedVerbs.includes(v)) {
+          selectedVerbs = selectedVerbs.filter(x => x !== v);
+        } else {
+          selectedVerbs.push(v);
+        }
+      }
+      y += 40;
+    }
+  }
+}
+
+function keyPressed() {
+  if (state === "menu" && keyCode === ENTER && selectedVerbs.length > 0) {
+    startGame();
+  }
+  else if (state === "end" && keyCode === ENTER) {
+    state = "menu";
+    selectedVerbs = [];
+    questions = [];
+    score = 0;
+  }
+  else if (state === "game" && key === "h") {
+    showHelp = !showHelp; // toggle עזרה
+  }
+}
+
+function startGame() {
+  questions = [];
+  for (let i=0; i<8; i++) {
+    let verb = random(selectedVerbs);
+    let pronounIndex = floor(random(pronouns.length));
+    questions.push({verb: verb, pronoun: pronouns[pronounIndex], correct: verbs[verb][pronounIndex]});
+  }
+  current = 0;
+  score = 0;
+  state = "game";
+
+  input = createInput();
+  input.position(50, 150);
+  button = createButton('בדוק');
+  button.position(input.x + input.width + 10, 150);
+  button.mousePressed(checkAnswer);
+}
+
+function checkAnswer() {
+  let q = questions[current];
+  if (input.value().trim().toLowerCase() === q.correct.toLowerCase()) {
+    score++;
+  }
+  input.value('');
+  current++;
+  if (current >= questions.length) {
+    input.remove();
+    button.remove();
+    state = "end";
+  }
+}
+
+function drawHelpTable(verb) {
+  let forms = verbs[verb];
+  let y = 50;
+  let x = width/2;
+  textSize(18);
+  text("טבלת " + verb, x, y);
+  for (let i=0; i<pronouns.length; i++) {
+    text(pronouns[i] + " : " + forms[i], x, y+30+i*25);
+  }
+}
+</script>
 </body>
 </html>
